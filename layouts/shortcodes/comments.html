@@ -65,7 +65,7 @@
                                 {{ if ne $ent nil}}
                                     {{ $desc := index $ent "desc"}}
                                     <b>{{ $desc }}</b> <br>
-                                    <pre style="white-space: pre-wrap;">{{ $file }}</pre>
+                                    <pre style="white-space: pre-wrap;">{{ trim $file "\n\r " }}</pre>
                                     <hr>
 
                                 {{ end }}
