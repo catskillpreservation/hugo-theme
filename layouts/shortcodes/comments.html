@@ -1,0 +1,84 @@
+<script>
+    function expand() {
+    $('.collapse').collapse('show');
+}
+        function collapse() {
+    $('.collapse').collapse('hide');
+}
+</script>
+
+
+<button type="button" class="btn btn-outline-primary" onclick="expand();">Open all</button>
+<button type="button" class="btn btn-outline-primary" onclick="collapse();">Close all</button>
+
+
+{{ $path := .Get "path" }}
+{{ $files := readDir $path }}
+{{ $count := 0}}
+{{ $fileslice := slice }}
+<br>
+{{ range $files }}
+    {{ if .IsDir }}
+        {{ $month := substr .Name 0 2}}
+        {{ $day := substr .Name 3 2}}
+        {{ $yr := substr .Name 6 4}}
+        {{ $fixed := printf "%s%s%s" $yr $month $day}}
+        {{ $fileslice = $fileslice | append $fixed }}
+    {{ end }}
+{{ end }}
+
+
+<div class="accordion">
+{{ range sort $fileslice "value" "desc"}}
+    {{ $fname := printf "%s.%s.%s" (substr . 4 2) (substr . 6 2) (substr . 0 4)}}
+    {{ $fpath := printf "%s/%s" $path $fname}}
+    {{ $subfolds := readDir $fpath }}
+    {{ $map := getJSON (printf "%s/manifest.json" $fpath) }}
+    {{ $count = add $count 1 }}
+
+    <div class="card">
+        <div class="card-header" id="header{{$count}}">
+            <h2 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{$count}}" aria-expanded="true" aria-controls="collapse{{$count}}">
+                    {{ $fname }}
+                </button>
+            </h2>
+        </div>
+        
+        <div id="collapse{{$count}}" class="collapse {{ if eq $count 1}} show {{end}} " aria-labelledby="heading{{$count}}">
+            <div class="card-body">
+
+                {{ range $subfolds }}
+                    
+                {{ $subfold := upper .Name}}
+                    {{ $sfpath := printf "%s/%s" $fpath .Name}}
+                    
+                    {{ if eq $subfold "TXT" }}
+                        {{ if .IsDir }}
+                            {{ range (readDir $sfpath) }}
+                                
+                            {{ $id := strings.TrimSuffix (printf ".%s" $subfold) .Name}}
+                                {{ $sffpath := printf "%s/%s" $sfpath .Name }}
+                                {{ $file := readFile $sffpath }}
+                                {{ $ent := index $map $id }}
+                                
+                                {{ if ne $ent nil}}
+                                    {{ $desc := index $ent "desc"}}
+                                    <b>{{ $desc }}</b> <br>
+                                    <pre style="white-space: pre-wrap;">{{ $file }}</pre>
+                                    <hr>
+
+                                {{ end }}
+
+                            {{ end }}
+                        {{ end }}
+                    {{ end }}
+                {{end}}
+
+            </div>
+        </div>
+    </div>
+
+{{ end }}
+
+</div>
