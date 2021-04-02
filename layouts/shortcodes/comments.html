@@ -18,12 +18,14 @@
 {{ $fileslice := slice }}
 <br>
 {{ range $files }}
+    {{ if and (ne .Name ".github") (ne .Name ".git") }}
     {{ if .IsDir }}
         {{ $month := substr .Name 0 2}}
         {{ $day := substr .Name 3 2}}
         {{ $yr := substr .Name 6 4}}
         {{ $fixed := printf "%s%s%s" $yr $month $day}}
         {{ $fileslice = $fileslice | append $fixed }}
+    {{ end }}
     {{ end }}
 {{ end }}
 
