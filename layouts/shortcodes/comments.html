@@ -55,11 +55,11 @@
                 {{ $subfold := upper .Name}}
                     {{ $sfpath := printf "%s/%s" $fpath .Name}}
                     
-                    {{ if eq $subfold "TXT" }}
-                        {{ if .IsDir }}
+                    {{ if .IsDir }}
+                        {{ if eq $subfold "TXT" }}
                             {{ range (readDir $sfpath) }}
                                 
-                            {{ $id := strings.TrimSuffix (printf ".%s" $subfold) .Name}}
+                                {{ $id := strings.TrimSuffix (printf ".%s" $subfold) .Name}}
                                 {{ $sffpath := printf "%s/%s" $sfpath .Name }}
                                 {{ $file := readFile $sffpath }}
                                 {{ $ent := index $map $id }}
@@ -69,11 +69,40 @@
                                     <b>{{ $desc }}</b> <br>
                                     <pre style="white-space: pre-wrap;">{{ trim $file "\n\r " }}</pre>
                                     <hr>
-
                                 {{ end }}
 
                             {{ end }}
                         {{ end }}
+                        <h2>Other formats</h2>
+                        <div class="accordion">
+                            <div class="card">
+                                <div class="card-header" id="header{{$count}}1">
+                                    <h2 class="mb-0">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{$count}}1" aria-expanded="true" aria-controls="collapse{{$count}}1">
+                                            PDFs
+                                        </button>
+                                    </h2>
+                                </div>
+                                <div id="collapse{{$count}}1" class="collapse" aria-labelledby="heading{{$count}}1">
+                                    <div class="card-body">
+                        
+                                {{ if eq $subfold "PDF" }}
+                                    {{ range (readDir $sfpath) }} 
+                                        {{ $id := strings.TrimSuffix (printf ".%s" $subfold) .Name}}
+                                        {{ $sffpath := printf "%s/%s" $sfpath .Name }}
+                                        {{ $ent := index $map $id }}
+                                        {{ if ne $ent nil}}
+                                            {{ $desc := index $ent "desc"}}
+                                            <b>{{ $desc }}</b> <br>
+                                            <a href="{{strings.TrimPrefix "./content" $sffpath}}" target="_blank">click here to view</a>
+                                            <hr>
+                                        {{ end }}
+                                    {{ end }}
+                                {{ end }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
                     {{ end }}
                 {{end}}
 
