@@ -31,85 +31,82 @@
 
 
 <div class="accordion">
-{{ range sort $fileslice "value" "desc"}}
-    {{ $fname := printf "%s.%s.%s" (substr . 4 2) (substr . 6 2) (substr . 0 4)}}
-    {{ $fpath := printf "%s/%s" $path $fname}}
-    {{ $subfolds := readDir $fpath }}
-    {{ $map := getJSON (printf "%s/manifest.json" $fpath) }}
-    {{ $count = add $count 1 }}
+    {{ range sort $fileslice "value" "desc"}}
+        {{ $fname := printf "%s.%s.%s" (substr . 4 2) (substr . 6 2) (substr . 0 4)}}
+        {{ $fpath := printf "%s/%s" $path $fname}}
+        {{ $subfolds := readDir $fpath }}
+        {{ $map := getJSON (printf "%s/manifest.json" $fpath) }}
+        {{ $count = add $count 1 }}
 
-    <div class="card">
-        <div class="card-header" id="header{{$count}}">
-            <h2 class="mb-0">
-                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{$count}}" aria-expanded="true" aria-controls="collapse{{$count}}">
-                    {{ $fname }}
-                </button>
-            </h2>
-        </div>
-        
-        <div id="collapse{{$count}}" class="collapse {{ if eq $count 1}} show {{end}} " aria-labelledby="heading{{$count}}">
-            <div class="card-body">
+        <div class="card">
+            <div class="card-header" id="header{{$count}}">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{$count}}" aria-expanded="true" aria-controls="collapse{{$count}}">
+                        {{ $fname }}
+                    </button>
+                </h2>
+            </div>
+            
+            <div id="collapse{{$count}}" class="collapse {{ if eq $count 1}} show {{end}} " aria-labelledby="heading{{$count}}">
+                <div class="card-body">
+                
+                    {{ if fileExists (printf "%s/TXT" $fpath) }}
 
-                {{ range $subfolds }}
-                    
-                {{ $subfold := upper .Name}}
-                    {{ $sfpath := printf "%s/%s" $fpath .Name}}
-                    
-                    {{ if .IsDir }}
-                        {{ if eq $subfold "TXT" }}
-                            {{ range (readDir $sfpath) }}
-                                
-                                {{ $id := strings.TrimSuffix (printf ".%s" $subfold) .Name}}
-                                {{ $sffpath := printf "%s/%s" $sfpath .Name }}
-                                {{ $file := readFile $sffpath }}
-                                {{ $ent := index $map $id }}
-                                
-                                {{ if ne $ent nil}}
-                                    {{ $desc := index $ent "desc"}}
-                                    <b>{{ $desc }}</b> <br>
-                                    <pre style="white-space: pre-wrap;">{{ trim $file "\n\r " }}</pre>
-                                    <hr>
-                                {{ end }}
-
+                        {{ range readDir (printf "%s/TXT" $fpath) }}
+                            {{ $subfold := "TXT"}}
+                            {{ $sfpath := printf "%s/%s" $fpath "txt"}}
+                                            
+                            {{ $id := strings.TrimSuffix (printf ".%s" $subfold) .Name}}
+                            {{ $sffpath := printf "%s/%s" $sfpath .Name }}
+                            {{ $file := readFile $sffpath }}
+                            {{ $ent := index $map $id }}
+                            
+                            {{ if ne $ent nil}}
+                                {{ $desc := index $ent "desc"}}
+                                <b>{{ $desc }}</b> <br>
+                                <pre style="white-space: pre-wrap;">{{ trim $file "\n\r " }}</pre>
+                                <hr>
                             {{ end }}
                         {{ end }}
-                        <h2>Other formats</h2>
-                        <div class="accordion">
-                            <div class="card">
-                                <div class="card-header" id="header{{$count}}1">
-                                    <h2 class="mb-0">
-                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{$count}}1" aria-expanded="true" aria-controls="collapse{{$count}}1">
-                                            PDFs
-                                        </button>
-                                    </h2>
+                    {{ end }}
+                    <h2>Other formats</h2>
+                    <div class="accordion">
+                        {{ if fileExists (printf "%s/PDF" $fpath)}}
+                            {{ $subfold := "PDF" }}
+                            {{ $sfpath := printf "%s/PDF" $fpath}}
+
+                            {{ range readDir $sfpath }}
+                                <div class="card">
+                                    <div class="card-header" id="headerPDF{{$count}}">
+                                        <h2 class="mb-0">
+                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapsePDF{{$count}}" aria-expanded="true" aria-controls="collapsePDF{{$count}}">
+                                                PDFs
+                                            </button>
+                                        </h2>
+                                    </div>
+                                    <div id="collapsePDF{{$count}}" class="collapse" aria-labelledby="headingPDF{{$count}}">
+                                        <div class="card-body">
+                            
+                                            {{ range (readDir $sfpath) }} 
+                                                {{ $id := strings.TrimSuffix (printf ".%s" $subfold) .Name}}
+                                                {{ $sffpath := printf "%s/%s" $sfpath .Name }}
+                                                {{ $ent := index $map $id }}
+
+                                                {{ if ne $ent nil}}
+                                                    {{ $desc := index $ent "desc"}}
+                                                    <b>{{ $desc }}</b> <br>
+                                                    <a href="{{strings.TrimPrefix "./content" $sffpath}}" target="_blank">click here to view</a>
+                                                {{ end }}
+                                            {{ end }}
+
+                                        </div>
+                                    </div>
                                 </div>
-                                <div id="collapse{{$count}}1" class="collapse" aria-labelledby="heading{{$count}}1">
-                                    <div class="card-body">
-                        
-                                {{ if eq $subfold "PDF" }}
-                                    {{ range (readDir $sfpath) }} 
-                                        {{ $id := strings.TrimSuffix (printf ".%s" $subfold) .Name}}
-                                        {{ $sffpath := printf "%s/%s" $sfpath .Name }}
-                                        {{ $ent := index $map $id }}
-                                        {{ if ne $ent nil}}
-                                            {{ $desc := index $ent "desc"}}
-                                            <b>{{ $desc }}</b> <br>
-                                            <a href="{{strings.TrimPrefix "./content" $sffpath}}" target="_blank">click here to view</a>
-                                            <hr>
-                                        {{ end }}
-                                    {{ end }}
-                                {{ end }}
-                            </div>
-                        </div>
+                            {{end}}
+                        {{ end }}
                     </div>
                 </div>
-                    {{ end }}
-                {{end}}
-
             </div>
         </div>
-    </div>
-
-{{ end }}
-
+    {{ end }}
 </div>
