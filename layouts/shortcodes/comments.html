@@ -47,7 +47,7 @@
                 </h2>
             </div>
             
-            <div id="collapse{{$count}}" class="collapse {{ if eq $count 1}} show {{end}} " aria-labelledby="heading{{$count}}">
+            <div id="collapse{{$count}}" class="collapse {{if eq $count 1}} show {{end}} " aria-labelledby="heading{{$count}}">
                 <div class="card-body">
                 
                     {{ if fileExists (printf "%s/TXT" $fpath) }}
@@ -71,9 +71,9 @@
                     {{ end }}
                     <h2>Other formats</h2>
                     <div class="accordion">
-                        {{ if fileExists (printf "%s/PDF" $fpath)}}
+                        {{ if fileExists (printf "%s/pdf" $fpath)}}
                             {{ $subfold := "PDF" }}
-                            {{ $sfpath := printf "%s/PDF" $fpath}}
+                            {{ $sfpath := printf "%s/pdf" $fpath}}
 
                             {{ range readDir $sfpath }}
                                 <div class="card">
@@ -95,14 +95,51 @@
                                                 {{ if ne $ent nil}}
                                                     {{ $desc := index $ent "desc"}}
                                                     <b>{{ $desc }}</b> <br>
-                                                    <a href="{{strings.TrimPrefix "./content" $sffpath}}" target="_blank">click here to view</a>
+                                                    <a href="{{strings.TrimPrefix "./content" $sffpath}}" target="_blank">click here to view</a>.
                                                 {{ end }}
                                             {{ end }}
-
                                         </div>
                                     </div>
                                 </div>
                             {{end}}
+                        {{ end }}
+
+                        {{ if fileExists (printf "%s/docx" $fpath)}}
+                            {{ $subfold := "DOCX" }}
+                            {{ $sfpath := printf "%s/docx" $fpath}}
+                            <div class="card">
+                                <div class="card-header" id="headerDOCX{{$count}}">
+                                    <h2 class="mb-0">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseDOCX{{$count}}" aria-expanded="true" aria-controls="collapseDOCX{{$count}}">
+                                            DOCX
+                                        </button>
+                                    </h2>
+                                </div>
+                                {{ range readDir $sfpath }}
+                                
+                                    <div id="collapseDOCX{{$count}}" class="collapse" aria-labelledby="headingDOCX{{$count}}">
+                                        <div class="card-body">
+                            
+                                            {{ range (readDir $sfpath) }}
+                                                {{ $id := strings.TrimSuffix (printf ".%s" $subfold) .Name}}
+                                                {{ if ne $id .Name }}
+                                                    {{ $sffpath := printf "%s/%s" $sfpath .Name }}
+                                                    {{ $ent := index $map $id }}
+
+                                                    {{ if ne $ent nil}}
+                                                        {{ $file := readFile (printf "%s/%s.TXT" $sfpath $id)}}
+                                                        {{ $desc := index $ent "desc"}}
+                                                        <b>{{ $desc }}</b> <br>
+                                                        <pre style="white-space: pre-wrap;">{{ trim $file "\n\r " }}</pre>
+                                                        The above text is a conversion and thus may not be formatted correctly. To read the file in it's original form 
+                                                        <a href="{{strings.TrimPrefix "./content" $sffpath}}" target="_blank">click here to download</a>.
+                                                    {{ end }}
+                                                {{ end }}
+                                            {{ end }}
+                                        </div>
+                                    </div>
+                                {{end}}
+                            </div>
                         {{ end }}
                     </div>
                 </div>
