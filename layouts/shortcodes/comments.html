@@ -6,7 +6,9 @@
     $('.collapse').collapse('hide');
 }
 </script>
-
+<style>
+    .accordion div.card:only-child { border-bottom: 1px solid rgba(0, 0, 0, 0.125); border-radius: calc(0.25rem - 1px); }
+</style>
 
 <button type="button" class="btn btn-outline-primary" onclick="expand();">Open all</button>
 <button type="button" class="btn btn-outline-primary" onclick="collapse();">Close all</button>
