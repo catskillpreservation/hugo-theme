@@ -51,6 +51,7 @@
             
             <div id="collapse{{$count}}" class="collapse {{if eq $count 1}} show {{end}} " aria-labelledby="heading{{$count}}">
                 <div class="card-body">
+                    {{ range $subfolds }} {{ .Name }} {{ end }}
                 
                     {{ if fileExists (printf "%s/txt" $fpath) }}
 
