@@ -52,9 +52,9 @@
             <div id="collapse{{$count}}" class="collapse {{if eq $count 1}} show {{end}} " aria-labelledby="heading{{$count}}">
                 <div class="card-body">
                 
-                    {{ if fileExists (printf "%s/TXT" $fpath) }}
+                    {{ if fileExists (printf "%s/txt" $fpath) }}
 
-                        {{ range readDir (printf "%s/TXT" $fpath) }}
+                        {{ range readDir (printf "%s/txt" $fpath) }}
                             {{ $subfold := "TXT"}}
                             {{ $sfpath := printf "%s/%s" $fpath "txt"}}
                                             
